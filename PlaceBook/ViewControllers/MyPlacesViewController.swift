@@ -5,6 +5,7 @@
 //  Created by Ahmet CILINGIR on 17.09.26.
 //
 
+import CoreData
 import UIKit
 
 final class MyPlacesViewController: UIViewController {
