@@ -14,6 +14,8 @@ class MapViewController: UIViewController {
 
         title = "Map"
         navigationController?.navigationBar.prefersLargeTitles = true
+        
+        view.backgroundColor = AppTheme.background
 
     }
 
