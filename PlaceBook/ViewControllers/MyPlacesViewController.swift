@@ -163,6 +163,20 @@ extension MyPlacesViewController: UICollectionViewDelegateFlowLayout {
             right: AppLayout.horizontalPadding
         )
     }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        didSelectItemAt indexPath: IndexPath
+    ) {
+        selectedFilterIndex = indexPath.item
+
+        let selectedFilter = filters[indexPath.item]
+        viewModel.filterPlaces(by: selectedFilter)
+
+        tableView.reloadData()
+        collectionView.reloadData()
+        updateEmptyState()
+    }
 }
 
 // TableView
@@ -171,7 +185,7 @@ extension MyPlacesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int)
         -> Int
     {
-        return viewModel.places.count
+        return viewModel.numberOfPlaces
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath)
@@ -186,9 +200,11 @@ extension MyPlacesViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        let place = viewModel.places[indexPath.row]
+        let place = viewModel.place(at: indexPath.row)
 
         let image = viewModel.coverImage(for: place)
+
+        cell.delegate = self
 
         cell.configure(
             name: place.name ?? "",
@@ -199,5 +215,18 @@ extension MyPlacesViewController: UITableViewDataSource {
         )
 
         return cell
+    }
+}
+
+// Favorite Button delegate
+extension MyPlacesViewController: PlaceTableViewCellDelegate {
+
+    func placeTableViewCellDidTapFavorite(_ cell: PlaceTableViewCell) {
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+
+        viewModel.toogleFavorite(at: indexPath.row)
+
+        tableView.reloadData()
+        updateEmptyState()
     }
 }

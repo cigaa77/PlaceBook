@@ -12,6 +12,8 @@ import UIKit
 final class MyPlacesViewModel {
 
     private(set) var places: [PlaceEntity] = []
+    private(set) var filteredPlaces: [PlaceEntity] = []
+    private var currentFilter = "All"
 
     func fetchPlaces() {
 
@@ -24,17 +26,36 @@ final class MyPlacesViewModel {
 
         do {
             places = try context.fetch(request)
+            filteredPlaces = places
         } catch {
             print("Failed to fetch places: \(error.localizedDescription)")
         }
     }
 
+    func filterPlaces(by filter: String) {
+
+        currentFilter = filter
+
+        switch filter {
+        case "All":
+            filteredPlaces = places
+        case "Favorites":
+            filteredPlaces = places.filter({ PlaceEntity in
+                PlaceEntity.isFavorite
+            })
+        default:
+            filteredPlaces = places.filter {
+                $0.category == filter
+            }
+        }
+    }
+
     var numberOfPlaces: Int {
-        places.count
+        filteredPlaces.count
     }
 
     func place(at index: Int) -> PlaceEntity {
-        places[index]
+        filteredPlaces[index]
     }
 
     func coverImage(for place: PlaceEntity) -> UIImage? {
@@ -50,6 +71,15 @@ final class MyPlacesViewModel {
         else { return nil }
 
         return UIImage(data: imageData)
+    }
+
+    func toogleFavorite(at index: Int) {
+        let place = filteredPlaces[index]
+        place.isFavorite.toggle()
+
+        filterPlaces(by: currentFilter)
+
+        CoreDataManager.shared.saveContext()
     }
 
 }

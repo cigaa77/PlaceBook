@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol PlaceTableViewCellDelegate: AnyObject {
+    func placeTableViewCellDidTapFavorite(_ cell: PlaceTableViewCell)
+}
+
 final class PlaceTableViewCell: UITableViewCell {
 
     @IBOutlet private weak var containerView: UIView!
@@ -15,6 +19,8 @@ final class PlaceTableViewCell: UITableViewCell {
     @IBOutlet private weak var categoryLabel: UILabel!
     @IBOutlet private weak var distanceLabel: UILabel!
     @IBOutlet private weak var favoriteButton: UIButton!
+
+    weak var delegate: PlaceTableViewCellDelegate?
 
     static let identifier = "PlaceCell"
 
@@ -64,5 +70,9 @@ final class PlaceTableViewCell: UITableViewCell {
 
         let symbolName = isFavorite ? "star.fill" : "star"
         favoriteButton.setImage(UIImage(systemName: symbolName), for: .normal)
+    }
+
+    @IBAction func favoriteButtonTapped(_ sender: UIButton) {
+        delegate?.placeTableViewCellDidTapFavorite(self)
     }
 }
