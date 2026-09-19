@@ -5,6 +5,7 @@
 //  Created by Ahmet CILINGIR on 17.09.26.
 //
 
+import CoreLocation
 import UIKit
 
 final class MyPlacesViewController: UIViewController {
@@ -12,6 +13,9 @@ final class MyPlacesViewController: UIViewController {
     @IBOutlet private weak var tableView: UITableView!
     @IBOutlet private weak var filterCollectionView: UICollectionView!
     @IBOutlet private weak var emptyStateView: UIView!
+
+    private let locationManager = LocationManager()
+    private var currentLocation: CLLocation?
 
     private let filters = [
         "All",
@@ -33,6 +37,7 @@ final class MyPlacesViewController: UIViewController {
         setupTableView()
         setupFilterCollectionView()
         setupTabBar()
+        setupLocation()
 
     }
 
@@ -87,6 +92,16 @@ final class MyPlacesViewController: UIViewController {
 
         emptyStateView.isHidden = !isEmpty
         tableView.isHidden = isEmpty
+    }
+
+    private func setupLocation() {
+
+        locationManager.onLocationUpdate = { [weak self] location in
+            self?.currentLocation = location
+            self?.tableView.reloadData()
+        }
+
+        locationManager.requestLocation()
     }
 
 }
@@ -204,13 +219,18 @@ extension MyPlacesViewController: UITableViewDataSource {
 
         let image = viewModel.coverImage(for: place)
 
+        let distanceText = viewModel.distanceText(
+            for: place,
+            from: self.currentLocation
+        )
+
         cell.delegate = self
 
         cell.configure(
             name: place.name ?? "",
             category: place.category ?? "",
             image: image,
-            distanceText: nil,
+            distanceText: distanceText,
             isFavorite: place.isFavorite
         )
 

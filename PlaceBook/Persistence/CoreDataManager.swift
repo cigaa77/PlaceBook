@@ -40,4 +40,5 @@ final class CoreDataManager {
             print("Core Data save error: \(error.localizedDescription)")
         }
     }
+
 }

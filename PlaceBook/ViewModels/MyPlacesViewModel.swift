@@ -6,6 +6,7 @@
 //
 
 import CoreData
+import CoreLocation
 import Foundation
 import UIKit
 
@@ -80,6 +81,25 @@ final class MyPlacesViewModel {
         filterPlaces(by: currentFilter)
 
         CoreDataManager.shared.saveContext()
+    }
+
+    func distanceText(for place: PlaceEntity, from currentLocation: CLLocation?)
+        -> String?
+    {
+        guard let currentLocation else { return nil }
+
+        let placeLocation = CLLocation(
+            latitude: place.latitude,
+            longitude: place.longitude
+        )
+
+        let distance = currentLocation.distance(from: placeLocation)
+
+        if distance < 1000 {
+            return "\(Int(distance)) m"
+        } else {
+            return String(format: "%.1f km", distance / 1000)
+        }
     }
 
 }
