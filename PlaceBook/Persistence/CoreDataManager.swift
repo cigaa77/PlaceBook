@@ -41,4 +41,36 @@ final class CoreDataManager {
         }
     }
 
+    func addPlace(
+        name: String,
+        category: String,
+        notes: String?,
+        latitude: Double,
+        longitude: Double,
+        imageData: Data?,
+        isFavorite: Bool
+    ) {
+        let place = PlaceEntity(context: context)
+
+        place.id = UUID()
+        place.name = name
+        place.category = category
+        place.note = notes
+        place.latitude = latitude
+        place.longitude = longitude
+        place.isFavorite = isFavorite
+        place.createdAt = Date()
+
+        if let imageData {
+            let photo = PhotoEntity(context: context)
+
+            photo.id = UUID()
+            photo.imageData = imageData
+            photo.order = 0
+            photo.place = place
+        }
+
+        saveContext()
+    }
+
 }

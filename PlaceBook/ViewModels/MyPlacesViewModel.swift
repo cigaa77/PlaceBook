@@ -55,6 +55,16 @@ final class MyPlacesViewModel {
         filteredPlaces.count
     }
 
+    var totalPlacesCount: Int {
+        places.count
+    }
+
+    var favoritePlacesCount: Int {
+        places.filter { PlaceEntity in
+            PlaceEntity.isFavorite == true
+        }.count
+    }
+
     func place(at index: Int) -> PlaceEntity {
         filteredPlaces[index]
     }

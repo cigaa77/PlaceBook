@@ -13,6 +13,7 @@ final class MyPlacesViewController: UIViewController {
     @IBOutlet private weak var tableView: UITableView!
     @IBOutlet private weak var filterCollectionView: UICollectionView!
     @IBOutlet private weak var emptyStateView: UIView!
+    @IBOutlet private weak var summaryLabel: UILabel!
 
     private let locationManager = LocationManager()
     private var currentLocation: CLLocation?
@@ -47,6 +48,7 @@ final class MyPlacesViewController: UIViewController {
         viewModel.fetchPlaces()
         tableView.reloadData()
         updateEmptyState()
+        updateSummary()
     }
 
     private func setupUI() {
@@ -56,7 +58,9 @@ final class MyPlacesViewController: UIViewController {
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             systemItem: .add,
-            primaryAction: nil
+            primaryAction: UIAction { [weak self] _ in
+                self?.showAddPlace()
+            }
         )
         navigationItem.rightBarButtonItem?.tintColor = AppTheme.primary
     }
@@ -102,6 +106,34 @@ final class MyPlacesViewController: UIViewController {
         }
 
         locationManager.requestLocation()
+    }
+
+    private func showAddPlace() {
+        guard
+            let addPlaceViewController = storyboard?.instantiateViewController(
+                identifier: "AddPlaceViewController"
+            ) as? AddPlaceViewController
+        else {
+            return
+        }
+
+        addPlaceViewController.hidesBottomBarWhenPushed = true
+
+        navigationController?.pushViewController(
+            addPlaceViewController,
+            animated: true
+        )
+    }
+
+    private func updateSummary() {
+        let totalCount = viewModel.totalPlacesCount
+        let favoriteCount = viewModel.favoritePlacesCount
+
+        let placeText = totalCount == 1 ? "Place" : "Places"
+        let favoriteText = favoriteCount == 1 ? "Favorite" : "Favorites"
+
+        summaryLabel.text =
+            "\(totalCount) \(placeText) · \(favoriteCount) \(favoriteText)"
     }
 
 }
@@ -217,7 +249,8 @@ extension MyPlacesViewController: UITableViewDataSource {
 
         let place = viewModel.place(at: indexPath.row)
 
-        let image = viewModel.coverImage(for: place)
+        let image =
+            viewModel.coverImage(for: place)
 
         let distanceText = viewModel.distanceText(
             for: place,
@@ -229,6 +262,7 @@ extension MyPlacesViewController: UITableViewDataSource {
         cell.configure(
             name: place.name ?? "",
             category: place.category ?? "",
+            notes: place.note,
             image: image,
             distanceText: distanceText,
             isFavorite: place.isFavorite
@@ -248,5 +282,6 @@ extension MyPlacesViewController: PlaceTableViewCellDelegate {
 
         tableView.reloadData()
         updateEmptyState()
+        updateSummary()
     }
 }
